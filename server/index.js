@@ -2,6 +2,8 @@ const express = require('express');
 const http = require("http");
 const { Server } = require('socket.io');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 const connectDB = require('../configs/dataBase');
 const port = 5000;
 const app = express();
@@ -10,6 +12,8 @@ const accountModel = require('../models/account_model'); // Import model
 const Message = require('../models/message_model'); // Import model
 
 app.use(express.json()); // Thêm middleware này để phân tích cú pháp JSON
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 const { displayAccount, login, register } = require('../controllers/account_controller');
 const { log } = require('console');
@@ -74,12 +78,30 @@ io.on('connection', (socket) => {
 
     // Nhận tin nhắn (img) từ user và gửi lại cho user khác
     socket.on('send-image', async (data) => {
+        const { id_user_send, id_user_current, image } = data;
         var room = Number(data.id_user_send) + Number(data.id_user_current);
-        socket.to(room).emit('receive-image', data);
         console.log('receive-image');
 
-        
+        // Giải mã base64 và lưu file vào folder "uploads"
+        const buffer = Buffer.from(image, 'base64');
+        const filename = `${Date.now()}_${id_user_current}.png`; // Tên file duy nhất
+        const filepath = path.join(__dirname, 'uploads', filename);
 
+        fs.writeFileSync(filepath, buffer); // Lưu file vào folder
+
+        // Tạo URL để lưu vào MongoDB
+        const imageUrl = `/uploads/${filename}`;
+
+        // Gửi URL cho user trong room
+        socket.to(room).emit('receive-image', {image: imageUrl });
+
+        // Lưu URL vào MongoDB
+        const newMessage = new Message({
+            room,
+            sender: id_user_current,
+            message: imageUrl // Lưu URL thay vì dữ liệu base64
+        });
+        await newMessage.save();
     });
 
 });

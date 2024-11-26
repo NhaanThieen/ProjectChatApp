@@ -9,9 +9,13 @@ const messageSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    message: {
+    message: { // có thể là text hoặc image
         type: String,
-        required: true
+        required: false
+    },
+    imageURL: {
+        type: String,
+        required: false
     },
     timestamp: {
         type: Date,

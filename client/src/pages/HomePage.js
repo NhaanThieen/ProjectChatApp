@@ -282,7 +282,7 @@ function HomePage() {
     const finalImg = document.createElement('img');
     newMessage.classList.add('Receive-message');
     newImg.classList.add('Send-image');
-    finalImg.src = data.image;
+    finalImg.src = `http://localhost:5000${data.image}`;
 
     messageContainer.appendChild(newMessage);
     newMessage.appendChild(newImg);
