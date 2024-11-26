@@ -77,6 +77,9 @@ io.on('connection', (socket) => {
         var room = Number(data.id_user_send) + Number(data.id_user_current);
         socket.to(room).emit('receive-image', data);
         console.log('receive-image');
+
+        
+
     });
 
 });

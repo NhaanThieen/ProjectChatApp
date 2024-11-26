@@ -267,8 +267,11 @@ function HomePage() {
         id_user_current: id_user_current,
         image: image
       });
+      if(event.target.value !== ''){
+        handleSendMessage(event);
+      }
+      handleRemoveImage();
     }
-    handleRemoveImage();
   };
 
   // Nhận tin nhắn (img) từ server và hiển thị
