@@ -97,13 +97,30 @@ function HomePage() {
         const messageContainer = document.querySelector('.messages');
         messageContainer.innerHTML = ""; // Xóa các tin nhắn cũ trước khi hiển thị mới
         messages.forEach((msg) => {
-          const newMessage = document.createElement('li');
-          const finalMessage = document.createElement('p');
-          newMessage.classList.add(msg.sender === id_user_current ? 'Send-message' : 'Receive-message');
-          finalMessage.textContent = msg.message;
-          newMessage.appendChild(finalMessage);
-          messageContainer.appendChild(newMessage);
+          // Nếu tin nhắn phải là ảnh (không có imageURL) thì hiển thị text
+          if (!msg.imageURL) {
+            const newMessage = document.createElement('li');
+            const finalMessage = document.createElement('p');
+            newMessage.classList.add(msg.sender === id_user_current ? 'Send-message' : 'Receive-message');
+            finalMessage.textContent = msg.message;
+            newMessage.appendChild(finalMessage);
+            messageContainer.appendChild(newMessage);
+          }
+          // Ngược lại, hiển thị ảnh
+          else {
+            const newMessage = document.createElement('li');
+            const newImg = document.createElement('div');
+            const finalImg = document.createElement('img');
+            newMessage.classList.add(msg.sender === id_user_current ? 'Send-message' : 'Receive-message');
+            newImg.classList.add('Send-image');
+            finalImg.src = msg.imageURL;
+            newMessage.appendChild(newImg);
+            newImg.appendChild(finalImg);
+            messageContainer.appendChild(newMessage);
+          }
+          messageContainer.scrollTop = messageContainer.scrollHeight;
         });
+
       };
 
       socket.on('load-messages', handleLoadMessages);
@@ -113,7 +130,7 @@ function HomePage() {
         socket.off('load-messages', handleLoadMessages);
       };
     }
-  }, [id_user_send, id_user_current]); // Chạy lại khi id_user_send hoặc id_user_current thay đổi
+  }, [id_user_send]); // Chạy lại khi id_user_send hoặc id_user_current thay đổi
 
 
 
@@ -267,7 +284,7 @@ function HomePage() {
         id_user_current: id_user_current,
         image: image
       });
-      if(event.target.value !== ''){
+      if (event.target.value !== '') {
         handleSendMessage(event);
       }
       handleRemoveImage();
@@ -280,9 +297,10 @@ function HomePage() {
     const newMessage = document.createElement('li');
     const newImg = document.createElement('div');
     const finalImg = document.createElement('img');
+    finalImg.src = data.imageURL;
     newMessage.classList.add('Receive-message');
     newImg.classList.add('Send-image');
-    finalImg.src = `http://localhost:5000${data.image}`;
+
 
     messageContainer.appendChild(newMessage);
     newMessage.appendChild(newImg);
@@ -294,21 +312,25 @@ function HomePage() {
   return (
     <Container id='main-container' className='d-grid h-100'>
       <div className='left-rectangle'>
-        <button className="logout" onClick={handleLogout}>Logout</button>
-        <h2>User: {username}</h2>
-        <p>Email: {email}</p>
-        <p>id: {id_user_current}</p>
+        <div className="infor_user_current">
+          <button className="logout" onClick={handleLogout}>Logout</button>
+          <h2>User: {username}</h2>
+          <p>Email: {email}</p>
+          <p>id: {id_user_current}</p>
+        </div>
         <h2>Accounts</h2>
-        <ul className='account-display'>
-          {/* Với mỗi account được duyệt qua, hàm callBack sẽ được gọi để tạo li tương ứng */}
-          {accounts.map((account) => (
-            <li onClick={() => handleAccountClick(account.id, account.username)}>
-              <p>Username: {account.username}</p>
-              <p>Email: {account.email}</p>
-              <p>id: {account.id}</p>
-            </li>
-          ))}
-        </ul>
+        <div className="accounts-display">
+          <ul className='account-display'>
+            {/* Với mỗi account được duyệt qua, hàm callBack sẽ được gọi để tạo li tương ứng */}
+            {accounts.map((account) => (
+              <li onClick={() => handleAccountClick(account.id, account.username)}>
+                <p>Username: {account.username}</p>
+                <p>Email: {account.email}</p>
+                <p>id: {account.id}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
       <div className='right-rectangle'>
         <div className="infor_user_send">
