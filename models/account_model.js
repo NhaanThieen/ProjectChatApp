@@ -29,7 +29,6 @@ const accountSchema = new mongoose.Schema({
 }, {
     versionKey: false
 });
-
 // Tạo collection phụ để lưu giá trị id hiện tại
 const counterSchema = new mongoose.Schema({
     name: { type: String, required: true },
