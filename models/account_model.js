@@ -29,29 +29,31 @@ const accountSchema = new mongoose.Schema({
 }, {
     versionKey: false
 });
-// Tạo collection phụ để lưu giá trị id hiện tại
-const counterSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    value: { type: Number, required: true }
-});
 
-const Counter = mongoose.model('Counter', counterSchema);
 
-// Hàm pre-save hook để tự động tăng giá trị id
-accountSchema.pre('save', async function (next) {
-    const doc = this;
+// // Tạo collection phụ để lưu giá trị id hiện tại
+// const counterSchema = new mongoose.Schema({
+//     name: { type: String, required: true },
+//     value: { type: Number, required: true }
+// });
 
-    if (doc.isNew) {
-        const counter = await Counter.findOneAndUpdate(
-            { name: 'accountId' },
-            { $inc: { value: 1 } },
-            { new: true, upsert: true } // Tạo mới nếu chưa có
-        );
-        doc.id = counter.value;
-    }
+// const Counter = mongoose.model('Counter', counterSchema);
 
-    next();
-});
+// // Hàm pre-save hook để tự động tăng giá trị id
+// accountSchema.pre('save', async function (next) {
+//     const doc = this;
+
+//     if (doc.isNew) {
+//         const counter = await Counter.findOneAndUpdate(
+//             { name: 'accountId' },
+//             { $inc: { value: 1 } },
+//             { new: true, upsert: true } // Tạo mới nếu chưa có
+//         );
+//         doc.id = counter.value;
+//     }
+
+//     next();
+// });
 
 
 // Tạo ra model để qản lý 1 bảng (collection) trong mongoDB

@@ -19,6 +19,8 @@ app.use('/uploads', express.static(path.join(__dirname, '..', 'imgStorage')));
 const { displayAccount, login, register } = require('../controllers/account_controller');
 const { log } = require('console');
 const { join } = require('path');
+const userState = {};
+const account = null; // Khai báo biến account để lưu thông tin tài khoản
 
 connectDB(); // Kết nối DB
 
@@ -43,6 +45,19 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
     console.log("A user connected");
+    // Thêm vào danh sách userState
+    if (account != null) {
+        userState[account._id] = 1; // 1: online, 0: offline
+    }
+
+    // Gửi đối tượng userState khi user lần đầu đăng nhập
+    socket.emit('user-state', userState);
+
+    // Cập nhật lại userState bên phía client khi có user mới đăng nhập
+    socket.on
+
+
+
     socket.on('disconnect', () => {
         console.log("A user disconnected");
     });

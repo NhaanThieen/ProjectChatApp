@@ -6,11 +6,14 @@ import Axios from "axios";
 import './Home.css';
 import { CiImageOn } from "react-icons/ci";
 
+
+
+
 const connectDB = require('../dataBase');
 connectDB();
 const socket = io("http://localhost:5000");
 
-function HomePage() {
+function HomePage() { 
 
   const navigate = useNavigate();
   // UseState để tự động render lại component khi giá trị thay đổi
@@ -327,6 +330,7 @@ function HomePage() {
                 <p>Username: {account.username}</p>
                 <p>Email: {account.email}</p>
                 <p>id: {account.id}</p>
+                <p>Có tin nhắn mới</p>
               </li>
             ))}
           </ul>
