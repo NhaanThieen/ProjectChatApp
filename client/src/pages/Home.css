@@ -144,6 +144,24 @@
 .account-display li:hover {
   cursor: pointer;
 }
+.account-display .accountShow{
+  height: 10vh;
+  position: relative;
+}
+
+.accountShow p{
+  padding: 10px !important;
+}
+.account-display li .isOnline{
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background-color: lightgreen;
+  position: absolute;
+  top: 10%;
+  right: 5%;
+}
+
 
 /* Css cho logout */
 .logout {

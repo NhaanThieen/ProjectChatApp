@@ -30,12 +30,16 @@ function HomePage() {
 
   // Xử lý đăng xuất
   const handleLogout = () => {
-    localStorage.removeItem('username');
-    localStorage.removeItem('email');
-    localStorage.removeItem('id');
-    setTimeout(() => { navigate("/") }, 500);
+    try {
+      Axios.post('http://localhost:5000/users/logout', { id_user_current });
+      localStorage.removeItem('username');
+      localStorage.removeItem('email');
+      localStorage.removeItem('id');
+      setTimeout(() => { navigate("/") }, 500);
+    } catch (error) {
+      console.error("Failed to logout!", error);
+    }
   };
-
 
   // Hiển thị danh sách user
   const showAccount = () => {
@@ -316,17 +320,15 @@ function HomePage() {
           <button className="logout" onClick={handleLogout}>Logout</button>
           <h2>User: {username}</h2>
           <p>Email: {email}</p>
-          <p>id: {id_user_current}</p>
         </div>
         <h2>Accounts</h2>
         <div className="accounts-display">
           <ul className='account-display'>
             {/* Với mỗi account được duyệt qua, hàm callBack sẽ được gọi để tạo li tương ứng */}
             {accounts.map((account) => (
-              <li onClick={() => handleAccountClick(account.id, account.username)}>
-                <p>Username: {account.username}</p>
-                <p>Email: {account.email}</p>
-                <p>id: {account.id}</p>
+              <li className="accountShow" onClick={() => handleAccountClick(account.id, account.username)}>
+                <p>{account.username}</p>
+                {account.userstate === 1 && <div className="isOnline"></div>}
               </li>
             ))}
           </ul>
