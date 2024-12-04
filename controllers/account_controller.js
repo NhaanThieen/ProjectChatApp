@@ -9,11 +9,11 @@ module.exports = {
     register: (req, res) => {
         // Tự động gán giá trị cùng tên từ body vào biến
         const { username, password, email } = req.body;
-
         const newAccount = new accountModel({
             username,
             password,
-            email
+            email,
+            userstate: 0,
         });
 
         newAccount.save()
@@ -34,6 +34,9 @@ module.exports = {
             const account = await accountModel.findOne({ email, password });
 
             if (account) {
+                // Cập nhật lại userstate là 1 (đã đăng nhập)
+                account.userstate = 1;
+                await account.save(); // Lưu thay đổi vào DB
                 res.status(200).json(account);
             } else {
                 res.status(400).json("Login failed!");
@@ -50,6 +53,15 @@ module.exports = {
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
-    }
+    },
 
+    getAccount: async (req, res) => {
+        const {id_user_current} = req.body;
+        try{
+            const account = await accountModel.findById(id_user_current);
+            res.status(200).json(account);
+        } catch(error){
+            res.status(500).json({ error: error.message });
+        }
+    },
 };

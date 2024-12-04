@@ -6,6 +6,7 @@ import Axios from "axios";
 import './Home.css';
 import { CiImageOn } from "react-icons/ci";
 
+
 const connectDB = require('../dataBase');
 connectDB();
 const socket = io("http://localhost:5000");
@@ -14,28 +15,47 @@ function HomePage() {
 
   const navigate = useNavigate();
   // UseState để tự động render lại component khi giá trị thay đổi
+
+
   const [accounts, setAccounts] = useState([]);
+  // lưu tài khoản hiện tại
+  const [account, setAccount] = useState({});
   const [id_user_send, setIdUserSend] = useState('');
   const [id_user_current, setIdUserCurrent] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+
+  // Lưu tin nhắn
   const [message, setMessage] = useState('');
   const [infor_user_send, setInforUserSend] = useState('');
   // Lưu base64 của ảnh
   const [image, setImage] = useState();
+
+
 
   /*/-------------------------------------------------------------------------------------------------------------------/*/
 
   // các hàm xử lý
 
   // Xử lý đăng xuất
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    alert(account);
     localStorage.removeItem('username');
     localStorage.removeItem('email');
     localStorage.removeItem('id');
     setTimeout(() => { navigate("/") }, 500);
   };
 
+
+  // Lưu account hiện tại
+  const getAccount = () => {
+    Axios.post('http://localhost:5000/users/getAccount', {
+      id_user_current,
+    }).then((response) => {
+      setAccount(response.data);
+      alert(account);
+    });
+  };
 
   // Hiển thị danh sách user
   const showAccount = () => {
@@ -59,6 +79,8 @@ function HomePage() {
     socket.emit('join-room', { id_user_send: id, id_user_current: id_user_current });
   };
 
+
+
   /*/-------------------------------------------------------------------------------------------------------------------/*/
 
   // Các hàm chạy khi component được render
@@ -69,6 +91,7 @@ function HomePage() {
     setUsername(localStorage.getItem('username'));
     setEmail(localStorage.getItem('email'));
     setIdUserCurrent(localStorage.getItem('id'));
+    getAccount();
   }, []);
 
   // Chạy liên tục
@@ -327,6 +350,7 @@ function HomePage() {
                 <p>Username: {account.username}</p>
                 <p>Email: {account.email}</p>
                 <p>id: {account.id}</p>
+                <p>userState: {account.userstate}</p>
               </li>
             ))}
           </ul>
