@@ -64,6 +64,11 @@ io.on('connection', (socket) => {
 
     // Nhận tin nhắn (message) từ user và gửi lại cho user khác
     socket.on('send-message', async (data) => {
+        // Data bao gồm {
+        //     id_user_send
+        //     id_user_current
+        //     message
+        // }
         console.log(data);
         var room = Number(data.id_user_send) + Number(data.id_user_current);
         socket.to(room).emit('receive-message', data);
