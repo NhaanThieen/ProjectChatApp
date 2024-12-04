@@ -46,6 +46,22 @@ module.exports = {
         }
     },
 
+    logout: async (req, res) => {
+        const { id_user_current } = req.body;
+        try {
+            const account = await accountModel.findOne({ id: id_user_current });
+            if (account) {
+                account.userstate = 0;
+                await account.save();
+                res.status(200).json("Logout successful!");
+            } else {
+                res.status(404).json("Account not found!");
+            }
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
     displayAccount: async (req, res) => {
         try {
             const accounts = await accountModel.find();
@@ -55,13 +71,5 @@ module.exports = {
         }
     },
 
-    getAccount: async (req, res) => {
-        const {id_user_current} = req.body;
-        try{
-            const account = await accountModel.findById(id_user_current);
-            res.status(200).json(account);
-        } catch(error){
-            res.status(500).json({ error: error.message });
-        }
-    },
+
 };

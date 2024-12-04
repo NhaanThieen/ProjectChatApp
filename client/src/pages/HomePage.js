@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import Axios from "axios";
 import './Home.css';
 import { CiImageOn } from "react-icons/ci";
+import axios from "axios";
+
 
 
 const connectDB = require('../dataBase');
@@ -14,20 +16,19 @@ const socket = io("http://localhost:5000");
 function HomePage() {
 
   const navigate = useNavigate();
-  // UseState để tự động render lại component khi giá trị thay đổi
-
 
   const [accounts, setAccounts] = useState([]);
   // lưu tài khoản hiện tại
-  const [account, setAccount] = useState({});
-  const [id_user_send, setIdUserSend] = useState('');
   const [id_user_current, setIdUserCurrent] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
 
   // Lưu tin nhắn
+  const [id_user_send, setIdUserSend] = useState('');
   const [message, setMessage] = useState('');
   const [infor_user_send, setInforUserSend] = useState('');
+
+
   // Lưu base64 của ảnh
   const [image, setImage] = useState();
 
@@ -39,23 +40,20 @@ function HomePage() {
 
   // Xử lý đăng xuất
   const handleLogout = async () => {
-    alert(account);
-    localStorage.removeItem('username');
-    localStorage.removeItem('email');
-    localStorage.removeItem('id');
-    setTimeout(() => { navigate("/") }, 500);
+    try {
+      // Gọi hàm logout từ server để cập nhật userstate
+      await Axios.post('http://localhost:5000/users/logout', { id_user_current });
+      localStorage.removeItem('username');
+      localStorage.removeItem('email');
+      localStorage.removeItem('id');
+      setTimeout(() => { navigate("/") }, 500);
+    } catch (error) {
+      console.log("error!");
+    }
   };
 
 
-  // Lưu account hiện tại
-  const getAccount = () => {
-    Axios.post('http://localhost:5000/users/getAccount', {
-      id_user_current,
-    }).then((response) => {
-      setAccount(response.data);
-      alert(account);
-    });
-  };
+
 
   // Hiển thị danh sách user
   const showAccount = () => {
@@ -91,7 +89,18 @@ function HomePage() {
     setUsername(localStorage.getItem('username'));
     setEmail(localStorage.getItem('email'));
     setIdUserCurrent(localStorage.getItem('id'));
-    getAccount();
+
+    const handleBeforeUnload = async (event) => {
+      event.preventDefault();
+      await handleLogout();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+    
   }, []);
 
   // Chạy liên tục

@@ -16,7 +16,7 @@ app.use(express.json()); // Thêm middleware này để phân tích cú pháp JS
 app.use('/uploads', express.static(path.join(__dirname, '..', 'imgStorage')));
 
 
-const { getAccount, displayAccount, login, register } = require('../controllers/account_controller');
+const { displayAccount, login,logout, register } = require('../controllers/account_controller');
 const { log } = require('console');
 const { join } = require('path');
 
@@ -29,7 +29,9 @@ app.post('/users/signup', register);
 app.post('/users/signin', login);
 // Lắng nghe request lấy thông tin tài khoản
 app.get('/users/display', displayAccount);
-app.post('/users/getAccount',getAccount);
+
+app.post('/users/logout', logout);
+
 
 const server = http.createServer(app);
 
