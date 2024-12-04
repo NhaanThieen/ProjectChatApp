@@ -125,6 +125,7 @@
   background-color: darkgrey;
   border-radius: 10px;
   margin: 10px 0px;
+  position: relative;
 }
 
 .account-display li p {
@@ -143,6 +144,15 @@
 
 .account-display li:hover {
   cursor: pointer;
+}
+.account-display li .circle{
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  position: absolute;
+  background-color: green;
+  top: 10%;
+  right: 5%;
 }
 
 /* Css cho logout */

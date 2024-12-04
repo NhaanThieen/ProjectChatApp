@@ -100,7 +100,7 @@ function HomePage() {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-    
+
   }, []);
 
   // Chạy liên tục
@@ -359,7 +359,8 @@ function HomePage() {
                 <p>Username: {account.username}</p>
                 <p>Email: {account.email}</p>
                 <p>id: {account.id}</p>
-                <p>userState: {account.userstate}</p>
+                {account.userstate === 1 && <div className="circle"></div>}
+                
               </li>
             ))}
           </ul>
