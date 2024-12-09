@@ -23,7 +23,9 @@ function HomePage() {
   const [infor_user_send, setInforUserSend] = useState('');
   // Lưu base64 của ảnh
   const [image, setImage] = useState();
-
+  // Lưu id người Nhận
+  const [id_user_receive, setIdUserReceive] = useState('');
+  const [notification_send, setNotificationSend] = useState('');
   /*/-------------------------------------------------------------------------------------------------------------------/*/
 
   // các hàm xử lý
@@ -86,6 +88,13 @@ function HomePage() {
 
     // Lắng nghe sự kiện từ server để nhận tin nhắn (img)
     socket.on('receive-image', handleReceiveImage);
+
+    // Xử lý khi người dùng nhận được tin nhắn
+    socket.on('notification', (data) => {
+      if(id_user_current === data.id_user_send){
+        alert("You have a new message from " + data.id_user_current);
+      }
+    });
 
     return () => {
       // Xóa event listener khi component bị unmount (Bị gỡ khỏi cây DOM)

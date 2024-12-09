@@ -72,8 +72,8 @@ io.on('connection', (socket) => {
         console.log(data);
         var room = Number(data.id_user_send) + Number(data.id_user_current);
         socket.to(room).emit('receive-message', data);
+        io.emit('notification', data);
         console.log(room);
-
         // Lưu tin nhắn vào MongoDB
         const newMessage = new Message({
             room,
