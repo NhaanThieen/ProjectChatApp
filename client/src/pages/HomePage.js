@@ -24,8 +24,7 @@ function HomePage() {
   const [infor_user_send, setInforUserSend] = useState('');
   // Lưu base64 của ảnh
   const [image, setImage] = useState();
-  const [notificationStatus, setNotificationStatus] = useState(""); // 0 là chưa xem, 1 là đã xem
-
+  const [previewMessage, setPreviewMessage] = useState([]);
   /*/-------------------------------------------------------------------------------------------------------------------/*/
 
   // các hàm xử lý
@@ -46,7 +45,7 @@ function HomePage() {
   // Hiển thị danh sách user
   const showAccount = () => {
     Axios.get('http://localhost:5000/users/display')
-      // Axios đã tự động parse chuỗi json thành mảng
+      // Axios đã tự động parse chuỗi json thành mảng do có nhiều đối tượng 
       // Response chứa mảng danh sách các tài khoản
       .then((response) => {
         // Lọc các tài khoản không phải của người dùng hiện tại
@@ -58,13 +57,18 @@ function HomePage() {
       });
   };
 
-  const notificate = (data) => {
-    if (data.id_user_send == id_user_current) {
-      setNotificationStatus(0);
-      const message = data.message.toString();
-      const liElement = document.querySelector(`[data-id="${data.id_user_current}"]`);
-      liElement.querySelector('.previewMessage').textContent = data.message;
-    }
+  // Hiển thị thông báo
+  const showNotification = async () => {
+    // Gửi request về server để lấy thông báo
+    Axios.post('http://localhostD:5000/users/notification',{
+      owner_id: id_user_current,
+    })
+    .then((response) => {
+      setPreviewMessage(response.data);
+    })
+    .catch((error) => {
+      console.error("There was an error fetching the notification!", error);
+    });
   };
 
   // Kết nối 2 user vào chung 1 room
@@ -99,13 +103,13 @@ function HomePage() {
     // Lắng nghe sự kiện từ server để nhận tin nhắn (img)
     socket.on('receive-image', handleReceiveImage);
 
-    socket.on('notification', notificate);
+    socket.on('notification', showNotification);
 
     return () => {
       // Xóa event listener khi component bị unmount (Bị gỡ khỏi cây DOM)
       socket.off('receive-message', handleReceiveMessage);
       socket.off('receive-image', handleReceiveImage);
-      socket.off('notification', notificate);
+
     };
   });
 
@@ -338,16 +342,16 @@ function HomePage() {
         </div>
         <h2>Accounts</h2>
         <div className="accounts-display">
-          <ul className='account-display'>
-            {/* Với mỗi account được duyệt qua, hàm callBack sẽ được gọi để tạo li tương ứng */}
-            {accounts.map((account) => (
-              <li className="accountShow" key={account.id} data-id={account.id} onClick={() => handleAccountClick(account.id, account.username)}>
-                <p>{account.username}</p>
-                {notificationStatus === 0 && <p className="previewMessage"></p>}
-                {account.userstate === 1 && <div className="isOnline"></div>}
-              </li>
-            ))}
-          </ul>
+            <ul className='account-display'>
+              {/* Với mỗi account được duyệt qua, hàm callBack sẽ được gọi để tạo li tương ứng */}
+              {accounts.map((account) => (
+                <li className="accountShow" key={account.id} data-id={account.id} onClick={() => handleAccountClick(account.id, account.username)}>
+                  <p>{account.username}</p>
+                  <p>Tin nhắn mới</p>
+                  {account.userstate === 1 && <div className="isOnline"></div>}
+                </li>
+              ))}
+            </ul>
         </div>
       </div>
       <div className='right-rectangle'>

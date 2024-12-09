@@ -11,12 +11,13 @@ const app = express();
 app.use(cors());
 const accountModel = require('../models/account_model'); // Import model
 const Message = require('../models/message_model'); // Import model
-
+const Notification = require('../models/notification_model');
 app.use(express.json()); // Thêm middleware này để phân tích cú pháp JSON
 app.use('/uploads', express.static(path.join(__dirname, '..', 'imgStorage')));
 
-
-const { displayAccount, login,logout , register } = require('../controllers/account_controller');
+// controllers
+const { showNotification } = require('../controllers/notification_controller');
+const { displayAccount, login, logout, register } = require('../controllers/account_controller');
 const { log } = require('console');
 const { join } = require('path');
 
@@ -30,7 +31,8 @@ app.post('/users/signin', login);
 // Lắng nghe request lấy thông tin tài khoản
 app.get('/users/display', displayAccount);
 app.post('/users/logout', logout);
-
+// Lắng nghe request lấy thông báo
+app.post('/users/notification', showNotification);
 
 const server = http.createServer(app);
 
@@ -81,6 +83,21 @@ io.on('connection', (socket) => {
             message: data.message
         });
         await newMessage.save();
+
+        // Xóa thông báo cũ có cùng owner_id và sender_id
+        await Notification.deleteMany({
+            owner_id: data.id_user_send,
+            sender_id: data.id_user_current
+        });
+
+        // Lưu thông báo mới vào MongoDB
+        const newNotification = new Notification({
+            owner_id: data.id_user_send,
+            sender_id: data.id_user_current,
+            message: data.message,
+            isRead: false
+        });
+        await newNotification.save();
     });
 
     // Nhận tin nhắn (img) từ user và gửi lại cho user khác
