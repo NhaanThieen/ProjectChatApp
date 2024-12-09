@@ -152,6 +152,9 @@
 .accountShow p{
   padding: 10px !important;
 }
+.accountShow .previewMessage{
+  padding-top: 0px !important;
+}
 .account-display li .isOnline{
   width: 15px;
   height: 15px;
@@ -161,6 +164,7 @@
   top: 10%;
   right: 5%;
 }
+
 
 
 /* Css cho logout */

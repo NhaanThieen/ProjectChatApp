@@ -1,10 +1,11 @@
 import io from "socket.io-client";
-import { Container, Button } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Axios from "axios";
 import './Home.css';
 import { CiImageOn } from "react-icons/ci";
+import { set } from "mongoose";
 
 const connectDB = require('../dataBase');
 connectDB();
@@ -23,9 +24,8 @@ function HomePage() {
   const [infor_user_send, setInforUserSend] = useState('');
   // Lưu base64 của ảnh
   const [image, setImage] = useState();
-  // Lưu id người Nhận
-  const [id_user_receive, setIdUserReceive] = useState('');
-  const [notification_send, setNotificationSend] = useState('');
+  const [notificationStatus, setNotificationStatus] = useState(""); // 0 là chưa xem, 1 là đã xem
+
   /*/-------------------------------------------------------------------------------------------------------------------/*/
 
   // các hàm xử lý
@@ -58,6 +58,15 @@ function HomePage() {
       });
   };
 
+  const notificate = (data) => {
+    if (data.id_user_send == id_user_current) {
+      setNotificationStatus(0);
+      const message = data.message.toString();
+      const liElement = document.querySelector(`[data-id="${data.id_user_current}"]`);
+      liElement.querySelector('.previewMessage').textContent = data.message;
+    }
+  };
+
   // Kết nối 2 user vào chung 1 room
   const handleAccountClick = async (id, infor_user_send) => {
     setIdUserSend(id);
@@ -75,6 +84,7 @@ function HomePage() {
     setUsername(localStorage.getItem('username'));
     setEmail(localStorage.getItem('email'));
     setIdUserCurrent(localStorage.getItem('id'));
+    // Xử lý khi người dùng nhận được tin nhắn
   }, []);
 
   // Chạy liên tục
@@ -89,17 +99,13 @@ function HomePage() {
     // Lắng nghe sự kiện từ server để nhận tin nhắn (img)
     socket.on('receive-image', handleReceiveImage);
 
-    // Xử lý khi người dùng nhận được tin nhắn
-    socket.on('notification', (data) => {
-      if(id_user_current === data.id_user_send){
-        alert("You have a new message from " + data.id_user_current);
-      }
-    });
+    socket.on('notification', notificate);
 
     return () => {
       // Xóa event listener khi component bị unmount (Bị gỡ khỏi cây DOM)
       socket.off('receive-message', handleReceiveMessage);
       socket.off('receive-image', handleReceiveImage);
+      socket.off('notification', notificate);
     };
   });
 
@@ -335,8 +341,9 @@ function HomePage() {
           <ul className='account-display'>
             {/* Với mỗi account được duyệt qua, hàm callBack sẽ được gọi để tạo li tương ứng */}
             {accounts.map((account) => (
-              <li className="accountShow" onClick={() => handleAccountClick(account.id, account.username)}>
+              <li className="accountShow" key={account.id} data-id={account.id} onClick={() => handleAccountClick(account.id, account.username)}>
                 <p>{account.username}</p>
+                {notificationStatus === 0 && <p className="previewMessage"></p>}
                 {account.userstate === 1 && <div className="isOnline"></div>}
               </li>
             ))}
