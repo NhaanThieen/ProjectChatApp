@@ -60,15 +60,15 @@ function HomePage() {
   // Hiển thị thông báo
   const showNotification = async () => {
     // Gửi request về server để lấy thông báo
-    Axios.post('http://localhostD:5000/users/notification',{
+    Axios.post('http://localhost:5000/users/notification', {
       owner_id: id_user_current,
     })
-    .then((response) => {
-      setPreviewMessage(response.data);
-    })
-    .catch((error) => {
-      console.error("There was an error fetching the notification!", error);
-    });
+      .then((response) => {
+        setPreviewMessage(response.data);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the notification!", error);
+      });
   };
 
   // Kết nối 2 user vào chung 1 room
@@ -88,7 +88,6 @@ function HomePage() {
     setUsername(localStorage.getItem('username'));
     setEmail(localStorage.getItem('email'));
     setIdUserCurrent(localStorage.getItem('id'));
-    // Xử lý khi người dùng nhận được tin nhắn
   }, []);
 
   // Chạy liên tục
@@ -96,6 +95,8 @@ function HomePage() {
 
     // Hiển thị danh sách user
     showAccount();
+    showNotification();
+
 
     // Lắng nghe sự kiện từ server để nhận tin nhắn (message)
     socket.on('receive-message', handleReceiveMessage);
@@ -103,7 +104,6 @@ function HomePage() {
     // Lắng nghe sự kiện từ server để nhận tin nhắn (img)
     socket.on('receive-image', handleReceiveImage);
 
-    socket.on('notification', showNotification);
 
     return () => {
       // Xóa event listener khi component bị unmount (Bị gỡ khỏi cây DOM)
@@ -342,17 +342,24 @@ function HomePage() {
         </div>
         <h2>Accounts</h2>
         <div className="accounts-display">
-            <ul className='account-display'>
-              {/* Với mỗi account được duyệt qua, hàm callBack sẽ được gọi để tạo li tương ứng */}
-              {accounts.map((account) => (
+          <ul className='account-display'>
+            {/* Với mỗi account được duyệt qua, hàm callBack sẽ được gọi để tạo li tương ứng */}
+            {accounts.map((account) => {
+              const previewMsg = previewMessage.find(msg => msg.sender_id === account.id);
+              return (
                 <li className="accountShow" key={account.id} data-id={account.id} onClick={() => handleAccountClick(account.id, account.username)}>
                   <p>{account.username}</p>
-                  <p>Tin nhắn mới</p>
+                  <p className="previewMessage">{previewMsg ? previewMsg.message : ''}</p>
                   {account.userstate === 1 && <div className="isOnline"></div>}
                 </li>
-              ))}
-            </ul>
+              );
+            })}
+          </ul>
         </div>
+
+
+
+
       </div>
       <div className='right-rectangle'>
         <div className="infor_user_send">
