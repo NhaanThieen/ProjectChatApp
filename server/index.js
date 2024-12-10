@@ -127,6 +127,7 @@ io.on('connection', (socket) => {
                 message: 'image',
                 imageURL, // Thêm URL ảnh vào database
             });
+            await newMessage.save();
 
             // Lưu thông báo mới vào MongoDB
             const newNotification = new Notification({
@@ -135,7 +136,7 @@ io.on('connection', (socket) => {
                 message: "Bạn có hình ảnh mới",
                 isRead: false
             });
-            await newMessage.save();
+            await newNotification.save();
 
             // Gửi URL ảnh về cho client
             socket.to(room).emit('receive-image', { sender: id_user_current, imageURL });
