@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import Axios from "axios";
 import './Home.css';
 import { CiImageOn } from "react-icons/ci";
-import { set } from "mongoose";
 
 const connectDB = require('../dataBase');
 connectDB();
@@ -58,7 +57,7 @@ function HomePage() {
   };
 
   // Hiển thị thông báo
-  const showNotification = async () => {
+  const showNotification = async (data) => {
     // Gửi request về server để lấy thông báo
     Axios.post('http://localhost:5000/users/notification', {
       owner_id: id_user_current,
@@ -87,6 +86,8 @@ function HomePage() {
           owner_id: id_user_current,
           sender_id: id
         });
+        // Load lại thông báo
+        await showNotification();
       } catch (error) {
         console.error("Failed to delete notification!", error);
       }
@@ -103,6 +104,8 @@ function HomePage() {
     setUsername(localStorage.getItem('username'));
     setEmail(localStorage.getItem('email'));
     setIdUserCurrent(localStorage.getItem('id'));
+    showNotification();
+
   }, []);
 
   // Chạy liên tục
@@ -110,7 +113,6 @@ function HomePage() {
 
     // Hiển thị danh sách user
     showAccount();
-    showNotification();
 
 
     // Lắng nghe sự kiện từ server để nhận tin nhắn (message)
@@ -119,12 +121,14 @@ function HomePage() {
     // Lắng nghe sự kiện từ server để nhận tin nhắn (img)
     socket.on('receive-image', handleReceiveImage);
 
+    // Lắng nghe sự kiện từ server để nhận thông báo
+    socket.on('notification',showNotification);
 
     return () => {
       // Xóa event listener khi component bị unmount (Bị gỡ khỏi cây DOM)
       socket.off('receive-message', handleReceiveMessage);
       socket.off('receive-image', handleReceiveImage);
-
+      socket.off('notification',showAccount);
     };
   });
 
