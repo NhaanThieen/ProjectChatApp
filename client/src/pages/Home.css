@@ -1,4 +1,3 @@
-
 .left-rectangle {
   width: 30%;
   height: 100vh;
@@ -145,20 +144,23 @@
 .account-display li:hover {
   cursor: pointer;
 }
-.account-display .accountShow{
+
+.account-display .accountShow {
   height: 10vh;
   position: relative;
 }
 
-.accountShow p{
+.accountShow p {
   padding: 10px !important;
 }
-.accountShow .previewMessage{
+
+.accountShow .previewMessage {
   padding-top: 0px !important;
   font-weight: bold;
   color: white;
 }
-.account-display li .isOnline{
+
+.account-display li .isOnline {
   width: 15px;
   height: 15px;
   border-radius: 50%;
@@ -245,4 +247,25 @@ li.Send-message {
   clear: both;
   padding: 5px;
   /* Thêm khoảng cách giữa các tin nhắn */
+}
+
+.Send-message {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.delete-menu {
+  display: none;
+  background-color: red;
+  color: white;
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-right: 10px;
+  /* Khoảng cách giữa chữ "Delete" và nội dung tin nhắn */
+}
+
+.Send-message:hover .delete-menu {
+  display: inline-block;
 }

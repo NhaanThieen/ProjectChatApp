@@ -41,6 +41,38 @@ function HomePage() {
     }
   };
 
+  // Xóa tin nhắn 
+  const handleDeleteMessageID = (messageId, messageElement) => {
+    // Gửi yêu cầu xóa tin nhắn lên server
+    Axios.post('http://localhost:5000/users/message/delete', { messageId })
+      .then((response) => {
+        if (response.data.success) {
+          // Xóa tin nhắn khỏi giao diện
+          messageElement.remove();
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to delete message:', error);
+      });
+  };
+
+  const handleDeleteMessage = (id_user_send, messageElement) => {
+    // Gửi yêu cầu xóa tin nhắn lên server
+    Axios.post('http://localhost:5000/users/message/deleteNoneID', {
+      id_user_current,
+      id_user_send,
+    })
+      .then((response) => {
+        if (response.data.success) {
+          // Xóa tin nhắn khỏi giao diện
+          messageElement.remove();
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to delete message:', error);
+      });
+  }
+
   // Hiển thị danh sách user
   const showAccount = () => {
     Axios.get('http://localhost:5000/users/display')
@@ -122,13 +154,13 @@ function HomePage() {
     socket.on('receive-image', handleReceiveImage);
 
     // Lắng nghe sự kiện từ server để nhận thông báo
-    socket.on('notification',showNotification);
+    socket.on('notification', showNotification);
 
     return () => {
       // Xóa event listener khi component bị unmount (Bị gỡ khỏi cây DOM)
       socket.off('receive-message', handleReceiveMessage);
       socket.off('receive-image', handleReceiveImage);
-      socket.off('notification',showAccount);
+      socket.off('notification', showAccount);
     };
   });
 
@@ -145,6 +177,15 @@ function HomePage() {
             const finalMessage = document.createElement('p');
             newMessage.classList.add(msg.sender === id_user_current ? 'Send-message' : 'Receive-message');
             finalMessage.textContent = msg.message;
+
+            // Thêm menu xóa tin nhắn nếu là tin nhắn đã gửi
+            const deleteMenu = document.createElement('div');
+            deleteMenu.classList.add('delete-menu');
+            deleteMenu.textContent = 'Delete';
+            deleteMenu.onclick = () => handleDeleteMessageID(msg._id, newMessage);
+            newMessage.appendChild(deleteMenu);
+
+
             newMessage.appendChild(finalMessage);
             messageContainer.appendChild(newMessage);
           }
@@ -156,6 +197,14 @@ function HomePage() {
             newMessage.classList.add(msg.sender === id_user_current ? 'Send-message' : 'Receive-message');
             newImg.classList.add('Send-image');
             finalImg.src = msg.imageURL;
+
+            // Thêm menu xóa tin nhắn nếu là tin nhắn đã gửi
+            const deleteMenu = document.createElement('div');
+            deleteMenu.classList.add('delete-menu');
+            deleteMenu.textContent = 'Delete';
+            deleteMenu.onclick = () => handleDeleteMessageID(msg._id, newMessage);
+            newImg.appendChild(deleteMenu);
+
             newMessage.appendChild(newImg);
             newImg.appendChild(finalImg);
             messageContainer.appendChild(newMessage);
@@ -190,6 +239,14 @@ function HomePage() {
       const newMessage = document.createElement('li');
       const finalMessage = document.createElement('p');
       newMessage.classList.add('Send-message');
+
+      // Thêm menu xóa tin nhắn
+      const deleteMenu = document.createElement('div');
+      deleteMenu.classList.add('delete-menu');
+      deleteMenu.textContent = 'Delete';
+      deleteMenu.onclick = () => handleDeleteMessage(id_user_send, newMessage);
+      newMessage.appendChild(deleteMenu);
+
       finalMessage.textContent = text;
       messageContainer.appendChild(newMessage);
       newMessage.appendChild(finalMessage);
@@ -315,6 +372,13 @@ function HomePage() {
       newMessage.classList.add('Send-message');
       newImg.classList.add('Send-image');
       finalImg.src = image;
+
+      // Thêm menu xóa tin nhắn
+      const deleteMenu = document.createElement('div');
+      deleteMenu.classList.add('delete-menu');
+      deleteMenu.textContent = 'Delete';
+      // deleteMenu.onclick = () => handleDeleteMessageID(newMessage);
+      newMessage.appendChild(deleteMenu);
 
       messageContainer.appendChild(newMessage);
       newMessage.appendChild(newImg);

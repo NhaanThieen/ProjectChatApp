@@ -9,7 +9,6 @@ const connectDB = require('../configs/dataBase');
 const port = 5000;
 const app = express();
 app.use(cors());
-const accountModel = require('../models/account_model'); // Import model
 const Message = require('../models/message_model'); // Import model
 const Notification = require('../models/notification_model');
 app.use(express.json()); // Thêm middleware này để phân tích cú pháp JSON
@@ -35,6 +34,29 @@ app.post('/users/logout', logout);
 app.post('/users/notification', showNotification);
 // Xóa thông báo khi người dùng đã xem
 app.post('/users/notification/delete', deleteNotification);
+// Xóa tin nhắn
+app.post('/users/message/delete', async (req, res) => {
+    const { messageId } = req.body;
+    try {
+        await Message.findByIdAndUpdate(messageId, { isDeleted: true });
+        res.status(200).json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post('/users/message/deleteNoneID', async (req, res) => {
+    const { id_user_current,
+        id_user_send, } = req.body;
+    var room = Number(id_user_send) + Number(id_user_current);
+    // Tìm kiếm tin nhắn thông qua room và sender, sau đó thay đổi isDeleted thành true
+    try {
+        await Message.findOneAndUpdate({ room, sender: id_user_send }, { isDeleted: true });
+        res.status(200).json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
 const server = http.createServer(app);
 
@@ -61,7 +83,7 @@ io.on('connection', (socket) => {
         socket.join(room);
 
         // Tìm kiếm dữ liệu trong room và sắp xếp theo thời gian, sau đó gửi dữ liệu về cho client
-        const messages = await Message.find({ room }).sort({ timestamp: 1 });
+        const messages = await Message.find({ room, isDeleted: false }).sort({ timestamp: 1 });
         socket.emit('load-messages', messages);
     });
 
@@ -82,7 +104,8 @@ io.on('connection', (socket) => {
         const newMessage = new Message({
             room,
             sender: data.id_user_current,
-            message: data.message
+            message: data.message,
+            isDeleted: false,
         });
         await newMessage.save();
 
@@ -126,6 +149,7 @@ io.on('connection', (socket) => {
                 sender: id_user_current,
                 message: 'image',
                 imageURL, // Thêm URL ảnh vào database
+                isDeleted: false,
             });
             await newMessage.save();
 
