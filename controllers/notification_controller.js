@@ -21,4 +21,21 @@ module.exports = {
             res.status(500).json("Error: " + error.message);
         }
     },
+
+    deleteNotification: async (req, res) => {
+        const { owner_id, sender_id } = req.body;
+        if (owner_id === undefined || sender_id === undefined) {
+            res.status(400).json("Missing owner_id or sender_id");
+            return;
+        }
+        else {
+            // Xóa thông báo dựa trên owner_id và sender_id
+            try {
+                await Notification.deleteMany({ owner_id, sender_id });
+                res.status(200).json("Delete notification successfully");
+            } catch (error) {
+                res.status(500).json("Error: " + error.message);
+            }
+        }
+    },
 };

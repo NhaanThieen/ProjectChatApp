@@ -16,7 +16,7 @@ app.use(express.json()); // Thêm middleware này để phân tích cú pháp JS
 app.use('/uploads', express.static(path.join(__dirname, '..', 'imgStorage')));
 
 // controllers
-const { showNotification } = require('../controllers/notification_controller');
+const { showNotification, deleteNotification } = require('../controllers/notification_controller');
 const { displayAccount, login, logout, register } = require('../controllers/account_controller');
 const { log } = require('console');
 const { join } = require('path');
@@ -33,6 +33,8 @@ app.get('/users/display', displayAccount);
 app.post('/users/logout', logout);
 // Lắng nghe request lấy thông báo
 app.post('/users/notification', showNotification);
+// Xóa thông báo khi người dùng đã xem
+app.post('/users/notification/delete', deleteNotification);
 
 const server = http.createServer(app);
 
@@ -124,6 +126,14 @@ io.on('connection', (socket) => {
                 sender: id_user_current,
                 message: 'image',
                 imageURL, // Thêm URL ảnh vào database
+            });
+
+            // Lưu thông báo mới vào MongoDB
+            const newNotification = new Notification({
+                owner_id: data.id_user_send,
+                sender_id: data.id_user_current,
+                message: "Bạn có hình ảnh mới",
+                isRead: false
             });
             await newMessage.save();
 

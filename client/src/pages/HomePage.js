@@ -71,11 +71,26 @@ function HomePage() {
       });
   };
 
-  // Kết nối 2 user vào chung 1 room
+  // Kết nối 2 user vào chung 1 room, xóa thông báo 
   const handleAccountClick = async (id, infor_user_send) => {
     setIdUserSend(id);
     setInforUserSend(infor_user_send);
     socket.emit('join-room', { id_user_send: id, id_user_current: id_user_current });
+
+    // Kiểm tra xem thông báo đã tồn tại chưa
+    const isExist = previewMessage.find(msg => msg.sender_id == id && msg.owner_id == id_user_current);
+
+    if (isExist) {
+      // Nếu tồn tại thì xóa thông báo   
+      try {
+        Axios.post('http://localhost:5000/users/notification/delete', {
+          owner_id: id_user_current,
+          sender_id: id
+        });
+      } catch (error) {
+        console.error("Failed to delete notification!", error);
+      }
+    }
   };
 
   /*/-------------------------------------------------------------------------------------------------------------------/*/
